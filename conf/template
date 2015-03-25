@@ -26,6 +26,17 @@
                         }
                 }
         }
+},
+{
+        "url": "http://movie.douban.com/subject_search?search_text=",
+        "data": {
+                "list": {
+                        "path": "div[class=article],div[class=pl2]",
+                        "link":{
+                            "path":"a,attr@href"
+                        }
+                }
+        }
 }
 ]
 

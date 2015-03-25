@@ -9,7 +9,7 @@ import io
 import os
 import parse
 import douban
-from  get_title import get_title_year
+from  get_title import get_title
 def get_douban_movie(parse,ename):
     #print ename
     #ename ,year = get_title_year(ename)
@@ -35,10 +35,28 @@ if __name__ == "__main__":
     parser.init(sys.argv[1])
     testurl  = "http://banyungong.net/category/101.html"
     page=urllib.urlopen(testurl).read()
-    ss =  parser.get_parse_data(testurl,page,debug=True)
+    ss =  parser.get_parse_data(testurl,page)
+    mlist = []
+    for data in ss[0]['list']:
+        link =  "http://banyungong.net"+data['link']
+        title =  data['title'].encode("utf-8")
+        mlist.append([link,title])
+
+    testurl  = "http://gaoqing.la/"
+    page=urllib.urlopen(testurl).read()
+    ss =  parser.get_parse_data(testurl,page)
     for data in ss[0]['list']:
         link =  data['link']
         title =  data['title'].encode("utf-8")
-        get_douban_movie(parse,title)
-        break;
+        mlist.append([link,title])
+
+    for m in mlist:
+        print m[0]
+        print m[1]
+        if "gaoqing" in m[0]:
+            title = get_title("gaoqing",m[1])
+            print  title
+    
+#        get_douban_movie(parse,title)
+#        break;
 

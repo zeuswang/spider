@@ -4,7 +4,21 @@ import os
 import string
 import re
 import sys
-
+from chinese import *
+def get_title(urlname,str_all):
+    if urlname =="banyungong":
+        pass
+    elif urlname == "gaoqing":
+        flist = str_all.split(' ')    
+        return flist[2]
+#        for f in flist:
+#            unicodef = f.decode("utf-8")
+#            allchinese = True
+#            for uchar in unicodef:
+#                if not is_chinese(uchar):
+#                    allchinese = False
+#            if allchinese:
+#                return f
 
 def get_title_year(str_all):
     en_title = ""
