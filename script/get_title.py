@@ -6,9 +6,16 @@ import re
 import sys
 from chinese import *
 def get_title(urlname,str_all):
-    if urlname =="banyungong":
-        pass
-    elif urlname == "gaoqing":
+    if "banyungong" in urlname:
+        if "." in str_all:
+            pattern = re.compile(r'([a-zA-z\.]+[0-9]{4}\.)') 
+            match = pattern.search(str_all)
+            if match != None:
+                tt =  match.group()
+                return tt[0:(len(tt) -6)]
+           
+        return None
+    elif  "gaoqing" in urlname:
         flist = str_all.split(' ')    
         return flist[2]
 #        for f in flist:
@@ -32,7 +39,7 @@ def get_title_year(str_all):
     if "[" in ch2[0]:
         ch1 = str_all.split("]")
         ch2 = ch1[len(ch1)-1].strip().split(" ")
-    
+
     while t < len(t_list):
         ch1 = t_list[t]
         if "." in ch1 and len(ch1.split(".")) > 2:
@@ -47,7 +54,7 @@ def get_title_year(str_all):
     c2 = ch2[0][len(ch2[0])-1]
     if (c1.isalpha() or c1.isdigit()) and (not c2.isalpha() and not c2.isdigit()) :
         i = 1
-    
+
     while i<len(ch2):
         if ch2[i].isdigit() and len(ch2[i]) == 4:
             year = ch2[i]
@@ -65,8 +72,8 @@ def get_title_year(str_all):
             en_title2 += e
         elif e == " ":
             en_title2 += e
-            
+
     title = en_title2.strip()
-       
+
     return title,year
 

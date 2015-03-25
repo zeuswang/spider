@@ -11,43 +11,46 @@ class PageParser:
         print "Please define detail_parse!"
 result_list_num = 10
 class Item:
-    pic_url=""
-    cname=""
-    ename=""
-    aname=""
-    actors=""
-    actor_link=""
-    director=""
-    writer=""
-    location=""
-    type=""
-    date= ""
-    runtime=""
-    imdb_link=""
-    comment_link=""
-    summary=""
-    rate=0
-    votes=0
-    error=0
-
-def __init__(self):
-    self.pic_url=""
-    self.cname=""
-    self.ename=""
-    self.actors=""
-    self.director=""
-    self.writer=""
-    self.location=""
-    self.type=""
-    self.date= ""
-    self.runtime=""
-    self.rate=0
-    self.votes=0
-    self.error=0
-    self.imdb_link=""
-    self.comment_link=""
-    self.summary=""
-
+#    id = ""
+#    pic_url=""
+#    cname=""
+#    ename=""
+#    aname=""
+#    actors=""
+#    actor_link=""
+#    director=""
+#    writer=""
+#    location=""
+#    type=""
+#    date= ""
+#    runtime=""
+#    imdb_link=""
+#    comment_link=""
+#    summary=""
+#    rate=0
+#    votes=0
+#    error=0
+#    download_link = []
+    def __init__(self):
+        self.id = ""
+        self.pic_url=""
+        self.cname=""
+        self.ename=""
+        self.aname=""
+        self.actors=""
+        self.director=""
+        self.writer=""
+        self.location=""
+        self.type=""
+        self.date= ""
+        self.runtime=""
+        self.rate=0
+        self.votes=0
+        self.error=0
+        self.imdb_link=""
+        self.comment_link=""
+        self.summary=""
+        self.download_link=[]
 
 class DoubanParser(PageParser):
     def dir_parse(self,page,spider_list,result_list):
@@ -180,15 +183,15 @@ def get_tag(url):
 def get_result(target_url):
     parser = get_parser(target_url)
     target_url= target_url.strip()
-    spider_list.append(target_url)
-    while (len(spider_list)>0):
-        target_url =spider_list.pop()
-        res=urllib.urlopen(target_url).read()
+    res=urllib.urlopen(target_url).read()
         #parse_page(res)
-        it = Item()
-        parser.detail_parse(res,it)
-        time.sleep(1)
-        print '%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\n' % (it.cname,it.ename,it.actors,it.director,it.writer,it.location,it.type,it.date,it.runtime,it.rate,it.votes,it.pic_url,it.aname,it.imdb_link,it.comment_link,it.summary,target_url)
+    it = Item()
+    parser.detail_parse(res,it)
+    flist = target_url.split('/')
+    it.id = flist[-2]
+    #print it.id
+    #time.sleep(1)
+    #print '%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\n' % (it.cname,it.ename,it.actors,it.director,it.writer,it.location,it.type,it.date,it.runtime,it.rate,it.votes,it.pic_url,it.aname,it.imdb_link,it.comment_link,it.summary,target_url)
     return it
 
 

@@ -47,7 +47,7 @@ class Parser:
             if key != 'path':
                 keymap[k]=[]
                 break;
-        if len(node )> 1: 
+        if len(node )> 0: 
             if debug:
                 print "DEBUG",k
                 print node
