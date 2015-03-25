@@ -1,0 +1,32 @@
+[
+{
+        "url": "http://banyungong.net/category/101.html",
+                "data": {
+                        "list": {
+                                "path": "table[class=tableList],td[class=title]",
+                                "link": {
+                                        "path": "a,attr@href"
+                                },
+                                "title": {
+                                        "path": "text"
+                                }
+                        }
+                }
+},
+{
+        "url": "http://gaoqing.la/",
+        "data": {
+                "list": {
+                        "path": "div[class=post_hover]",
+                        "link": {
+                                "path": "a,attr@href"
+                        },
+                        "title": {
+                                "path": "text"
+                        }
+                }
+        }
+}
+]
+
+
