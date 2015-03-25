@@ -48,6 +48,9 @@ class Parser:
                 keymap[k]=[]
                 break;
         if len(node )> 1: 
+            if debug:
+                print "DEBUG",k
+                print node
             for d in node:
                 
                 submap ={}
@@ -61,19 +64,15 @@ class Parser:
         return keymap
     def _get_data(self,page,obj,debug):
         if debug:
-            print "template:"
+            print "DEBUG:template:"
             print obj
         doc = pyq(page)
         data = obj['data']
         res = []
         for k in data:
             #print k 
-            if debug:
-                print k
             elements = self._parse_data(doc,k,data[k],debug)
             #print elements
-            if debug:
-                print elements
             res.append(elements)
         return res
 
@@ -89,7 +88,7 @@ if __name__ =="__main__":
     parser.init(sys.argv[1])
     testurl  = "http://banyungong.net/category/101.html"
     page=urllib.urlopen(testurl).read()
-    ss =  parser.get_parse_data(testurl,page,debug=True)
+    ss =  parser.get_parse_data(testurl,page)
     for data in ss[0]['list']:
         print data['link']
         print data['title'].encode("utf-8")
