@@ -11,6 +11,20 @@ import os
 import parse
 import douban
 from  get_title import get_title
+import traceback
+def download_pic(url,id,dir):
+    try:
+        if not os.path.exists(dir):  
+            os.mkdir(dir)  
+        path = dir+"/"+id+".jpg" 
+        data = urllib.urlopen(url).read()  
+        f = file(path,"wb")  
+        f.write(data)  
+        f.close()  
+    except Exception,e:
+        traceback.print_exc()  
+        print e
+
 def get_douban_movie(parse,ename):
     #print ename
     #ename ,year = get_title_year(ename)
@@ -26,13 +40,18 @@ def get_douban_movie(parse,ename):
 
         return item
     except Exception,e:
-        print e
+
+        traceback.print_exc()  
+        print "get douban movie error",e
+        print "ename =",ename
+        print "list = ",list
     return None
 #print get_douban_movie("Interstellar")
 if __name__ == "__main__":
     mmap = {}
     output_movie = sys.argv[2]
     output_link = sys.argv[3]
+    pic_dir = sys.argv[4]
     parser = parse.Parser()
     parser.init(sys.argv[1])
     testurl  = "http://banyungong.net/category/101.html"
@@ -45,6 +64,8 @@ if __name__ == "__main__":
         title2 = get_title(link,title)
         if title2 !=None:
             mlist.append([link,title,title2])
+        print title
+        print title2
 
 #############################################################
 #gaoqing.la
@@ -58,6 +79,8 @@ if __name__ == "__main__":
         title2 = get_title(link,title)
         if title2 !=None:
             mlist.append([link,title,title2])
+        print title
+        print title2
 
     for m in mlist:
         it = get_douban_movie(parse,m[2])
@@ -67,26 +90,22 @@ if __name__ == "__main__":
 
             item = mmap[it.id]
             item.download_link.append([m[0],m[1]])
-
+            time.sleep(1)
+            download_pic(item.pic_url,item.id,pic_dir)
+            time.sleep(1)
         time.sleep(1)
-    print mmap
+#    print mmap
     fp = open(output_movie,'w')
-    try:
-        for k,it in mmap.items():
-            str = '%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\n' % (it.id,it.cname,it.ename,it.actors,it.director,it.writer,it.location,it.type,it.date,it.runtime,it.rate,it.votes,it.pic_url,it.aname,it.imdb_link,it.comment_link,it.summary)
-            fp.write(str)
-        fp.close()
-    except Exception,e:
-        print e
+    for k,it in mmap.items():
+        str = '%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\n' % (it.id,it.cname,it.ename,it.actors,it.director,it.writer,it.location,it.type,it.date,it.runtime,it.rate,it.votes,it.pic_url,it.aname,it.imdb_link,it.comment_link,it.summary)
+        fp.write(str)
+    fp.close()
 
     fp = open(output_link,'w')
-    try:
-        for k,v in mmap.items():
-            print k
-            for dl in v.download_link:
-                str = '%s\3%s\3%s\n' % (k,dl[0],dl[1])
-                fp.write(str)
-        fp.close()
-    except Exception,e:
-        print e
+    for k,v in mmap.items():
+#        print k
+        for dl in v.download_link:
+            str = '%s\3%s\3%s\n' % (k,dl[0],dl[1])
+            fp.write(str)
+    fp.close()
  

@@ -1,23 +1,37 @@
 #!/usr/bin python
-
+# coding=utf8
 import os
 import string
 import re
 import sys
 from chinese import *
+gaoqing_remove_pattern_list = [r'\[.*\]+.*',
+                                r'.*[\d]{4}年' ]
+def gaoqing_title(name):
+    s = name[:]
+    for pattern in gaoqing_remove_pattern_list:
+
+        p = re.compile(pattern) 
+        match = p.search(name)
+        if match != None:
+            tt =  match.group()
+            s = s.replace(tt,'')
+    return s
+
 def get_title(urlname,str_all):
+    if "合集" in str_all:
+        return None
     if "banyungong" in urlname:
         if "." in str_all:
-            pattern = re.compile(r'([a-zA-z\.]+[0-9]{4}\.)') 
+            pattern = re.compile(r'([a-zA-Z0-9\.]+[0-9]{4}\.)') 
             match = pattern.search(str_all)
             if match != None:
                 tt =  match.group()
                 return tt[0:(len(tt) -6)]
            
-        return None
+        return str_all
     elif  "gaoqing" in urlname:
-        flist = str_all.split(' ')    
-        return flist[2]
+        return gaoqing_title(str_all)
 #        for f in flist:
 #            unicodef = f.decode("utf-8")
 #            allchinese = True
@@ -76,4 +90,4 @@ def get_title_year(str_all):
     title = en_title2.strip()
 
     return title,year
-
+print get_title("http://gaoqing.la/","2014年 超能陆战队 大英雄联盟 大英雄天团 [漫威同名漫画改编 冰雪奇缘原班人马制作] 03-01 1080P超清 , 3D高清 , 720P高清 , Bluray蓝光原盘")

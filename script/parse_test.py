@@ -1,4 +1,3 @@
-# -*- coding:utf-8 -*-  
 import json
 import time
 import StringIO
@@ -20,12 +19,12 @@ class Parser:
         for e in s:
             try:
                 url = e['url']
-#                print "keyurl",url
+                print "keyurl",url
                 self._template_map[url] = e
             except Exception(),e:
-                print "Parser:init",e
+                print e
                 continue
-#        print s
+        print s
     def _parse_data(self,pyq_node,k,data,debug):
         keymap ={}
         path = data['path']
@@ -40,13 +39,8 @@ class Parser:
                 value = node.text()
                 return value
             else:
-                
-                node = node(p.encode("utf-8"))
-                #node = pyq(node)(p)
+                node = node(p)
                 node = pyq(node)
-                if debug:
-                    print "DEBUG,p",p
-                    print node
 
         
         for key in data:
@@ -90,14 +84,11 @@ class Parser:
         return []
             
 if __name__ =="__main__":
-    parser = Parser()
-    parser.init(sys.argv[1])
-    #testurl  = "http://banyungong.net/category/101.html"
-    testurl  = "http://gaoqing.la/"
+    testurl  = "http://banyungong.net/category/101.html"
     page=urllib.urlopen(testurl).read()
-    ss =  parser.get_parse_data(testurl,page,debug=True)
-    import get_title
-    for data in ss[0]['list']:
-        print data['link']
-        print data['title'].encode("utf-8")
-        print get_title.get_title(testurl,data['title'].encode("utf-8"))
+
+    node = pyq(page)
+    tt = node('table[class=tableList]')
+    print tt
+
+
