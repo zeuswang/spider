@@ -3,7 +3,7 @@
         "url": "http://banyungong.net/category/101.html",
                 "data": {
                         "list": {
-                                "path": "table[class=tableList],td[class=title]",
+                                "path": "table[class=tableList]#1,a",
                                 "link": {
                                         "path": "a,attr@href"
                                 },

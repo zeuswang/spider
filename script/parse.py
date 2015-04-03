@@ -39,14 +39,19 @@ class Parser:
             elif 'text' == p:
                 value = node.text()
                 return value
+            elif '#' in p:
+                pl = p.split('#')    
+                print pl[0],pl[1]
+                node = node(pl[0].encode("utf-8")).eq(int(pl[1]))
+                node = pyq(node)
             else:
                 
                 node = node(p.encode("utf-8"))
                 #node = pyq(node)(p)
                 node = pyq(node)
-                if debug:
-                    print "DEBUG,p",p
-                    print node
+            if debug:
+                print "DEBUG,p",p
+                print node
 
         
         for key in data:

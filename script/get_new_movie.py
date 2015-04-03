@@ -43,11 +43,36 @@ def get_douban_movie(parse,ename):
     except Exception,e:
 
         traceback.print_exc()  
-        print "get douban movie error",e
-        print "ename =",ename
-        print "list = ",list
+        print "ERROR:get douban movie error",e
+        print "ERROR:ename =",ename
+        print "ERROR:list = ",list
     return None
 #print get_douban_movie("Interstellar")
+def banyungong_get_link(parser):
+    testurl  = "http://banyungong.net/category/101.html"
+    page=urllib.urlopen(testurl).read()
+    ss =  parser.get_parse_data(testurl,page)
+    mlist = []
+    for data in ss[0]['list']:
+        link =  "http://banyungong.net"+data['link']
+        title =  data['title'].encode("utf-8")
+        if "1080P电影" != title:
+            title2 = get_title(link,title)
+            if title2 !=None:
+                mlist.append([link,title,title2])
+    return mlist 
+def gaoqingla_get_link(parser):
+    mlist = []
+    testurl  = "http://gaoqing.la/"
+    page=urllib.urlopen(testurl).read()
+    ss =  parser.get_parse_data(testurl,page)
+    for data in ss[0]['list']:
+        link =  data['link']
+        title =  data['title'].encode("utf-8")
+        title2 = get_title(link,title)
+        if title2 !=None:
+            mlist.append([link,title,title2])
+    return mlist
 if __name__ == "__main__":
     try:
         mmap = {}
@@ -56,37 +81,17 @@ if __name__ == "__main__":
         pic_dir = sys.argv[4]
         parser = parse.Parser()
         parser.init(sys.argv[1])
-        testurl  = "http://banyungong.net/category/101.html"
-        page=urllib.urlopen(testurl).read()
-        ss =  parser.get_parse_data(testurl,page)
         mlist = []
-        for data in ss[0]['list']:
-            link =  "http://banyungong.net"+data['link']
-            title =  data['title'].encode("utf-8")
-            title2 = get_title(link,title)
-            if title2 !=None:
-                mlist.append([link,title,title2])
-            print title
-            print title2
-    
-    #############################################################
-    #gaoqing.la
-    #############################################################
-        testurl  = "http://gaoqing.la/"
-        page=urllib.urlopen(testurl).read()
-        ss =  parser.get_parse_data(testurl,page)
-        for data in ss[0]['list']:
-            link =  data['link']
-            title =  data['title'].encode("utf-8")
-            title2 = get_title(link,title)
-            if title2 !=None:
-                mlist.append([link,title,title2])
-            print title
-            print title2
-    
+        mlist.extend(banyungong_get_link(parser))
+        mlist.extend(gaoqingla_get_link(parser))
+        #for m in mlist:
+        #    print m[2],m[0],m[1]
+        #sys.exit()
         for m in mlist:
+            print "INFO:",m[2],m[0],m[1]
             it = get_douban_movie(parse,m[2])
             if it != None: 
+                print "INFO:","get ok",m[2]
                 if it.id not in mmap:
                     mmap[it.id] = it
     

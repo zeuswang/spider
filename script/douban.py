@@ -83,7 +83,7 @@ class DoubanParser(PageParser):
                     idx2 = str(info).find("语言:")
                     if idx >0 and idx2 >0:
                         it.location = info[idx +len("制片国家/地区:"):idx2]
-                        print it.location
+                        #print it.location
 
                     tl = pyq(v)('span[property=\'v:genre\']')
                     for t in tl:
@@ -100,12 +100,14 @@ class DoubanParser(PageParser):
                     if idx >0 and idx2 >0:
                         it.aname = info[idx +len("又名") +1 :idx2]
                             #print it.aname
-
+                    it.runtime = "null"
                     runtv = pyq(v)('span[property=\'v:runtime\']')
-                    if runtv is not None:
+                    if runtv is not None and runtv.text() is not None:
                         it.runtime = runtv.text().encode("UTF-8")
+
+                    it.director = "null"
                     director = pyq(v)('a[rel=\'v:directedBy\']')
-                    if director is not None:
+                    if director is not None and director.text() is not None:
                         it.director = director.text().encode("UTF-8")
 
                     ac = pyq(v)('a[rel=\'v:starring\']')
@@ -113,7 +115,8 @@ class DoubanParser(PageParser):
                         it.actors += "/"+pyq(actor).text().encode("UTF-8")
 
                     st = pyq(v)('span[property=\'v:initialReleaseDate\']')
-                    if st is not None:
+                    it.date = "0"
+                    if st is not None and st.text() is not None:
                         it.date = st.text().encode("UTF-8")
 
                     al= pyq(v)('a[rel=\'nofollow\']')
@@ -130,9 +133,10 @@ class DoubanParser(PageParser):
             if img is not None:
                 it.pic_url = img.attr('src')
                     #print it.pic_url
-
+            
+            it.summary = "NULL"
             smy = doc('span[property=\'v:summary\']')
-            if smy is not None:
+            if smy is not None and smy.text() is not None:
                 it.summary = smy.text().encode("UTF-8")
                     #print it.summary
 
@@ -142,13 +146,15 @@ class DoubanParser(PageParser):
                 aa = tt('h2')('a')	
                 if aa is not None:
                     it.comment_link=aa.attr('href')
-                    print it.comment_link
+                    #print it.comment_link
 
+            it.rate="0"
             rate = doc('strong[property=\'v:average\']')
-            if rate is not None:
+            if rate is not None  and rate.text() is not None :
                 it.rate = rate.text().encode("UTF-8")
+            it.votes = "0"
             votes = doc('span[property=\'v:votes\']')
-            if votes is not None:
+            if votes is not None and votes.text() is not None:
                 it.votes = votes.text().encode("UTF-8")
 
             namestr = doc('meta[name=\'keywords\']')
@@ -156,10 +162,6 @@ class DoubanParser(PageParser):
                 s = namestr.attr('content').encode("UTF-8").split(",")	
                 it.cname= s[0]
                 it.ename= s[1]
-
-            print "######"
-
-
 
 
 spider_list=[]
