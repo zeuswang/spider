@@ -12,6 +12,7 @@ import parse
 import douban
 from  get_title import get_title
 import traceback
+import datetime
 def download_pic(url,id,dir):
     try:
         if not os.path.exists(dir):  
@@ -101,12 +102,14 @@ if __name__ == "__main__":
             str = '%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\n' % (it.id,it.cname,it.ename,it.actors,it.director,it.writer,it.location,it.type,it.date,it.runtime,it.rate,it.votes,it.pic_url,it.aname,it.imdb_link,it.comment_link,it.summary)
             fp.write(str)
         fp.close()
-    
+        time = datetime.datetime.now()
+        datestr = time.strftime('%Y-%m-%d')
         fp = open(output_link,'w')
         for k,v in mmap.items():
     #        print k
+            
             for dl in v.download_link:
-                str = '%s\3%s\3%s\n' % (k,dl[0],dl[1])
+                str = '%s\3%s\3%s\3%s\n' % (k,dl[0],dl[1],datestr)
                 fp.write(str)
         fp.close()
     except Exception,e:
