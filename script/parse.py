@@ -27,7 +27,7 @@ class Parser:
                 continue
 #        print s
     def _parse_data(self,pyq_node,k,data,debug):
-        keymap ={}
+        keymap =[]
         path = data['path']
         pathlist = path.split(',')
         node = pyq_node
@@ -54,10 +54,10 @@ class Parser:
                 print node
 
         
-        for key in data:
-            if key != 'path':
-                keymap[k]=[]
-                break;
+#        for key in data:
+#            if key != 'path':
+#                keymap[k]=[]
+#                break;
         if len(node )> 0: 
             if debug:
                 print "DEBUG",k
@@ -65,12 +65,11 @@ class Parser:
             for d in node:
                 
                 submap ={}
-                if k in keymap:
-                    for key in data:
-                        if key != 'path':
-                            res = self._parse_data(pyq(d),key,data[key],debug)
-                            submap[key] = res
-                    keymap[k].append(submap)
+                for key in data:
+                    if key != 'path':
+                        res = self._parse_data(pyq(d),key,data[key],debug)
+                        submap[key] = res
+                keymap.append(submap)
             
         return keymap
     def _get_data(self,page,obj,debug):
@@ -79,30 +78,44 @@ class Parser:
             print obj
         doc = pyq(page)
         data = obj['data']
-        res = []
+        res = {}
         for k in data:
             #print k 
             elements = self._parse_data(doc,k,data[k],debug)
             #print elements
-            res.append(elements)
+            #res.append({k:elements})
+            res[k]=elements
         return res
 
 
     def get_parse_data(self,url,page,debug=False):
-        if url in self._template_map:
-            template = self._template_map[url]
-            return self._get_data(page,template,debug)
+        for k,v in self._template_map.items():
+            if k in url or k ==url:
+                template = v
+                return self._get_data(page,template,debug)
         return []
             
 if __name__ =="__main__":
     parser = Parser()
     parser.init(sys.argv[1])
+    #testurl  = "http://banyungong.net/category/101.html"
+    testurl  = "http://www.imdb.com/title/tt2952602/"
+    #testurl  = "http://gaoqing.la/"
+    page=urllib.urlopen(testurl).read()
+    ss =  parser.get_parse_data(testurl,page,debug=True)
+    print ss
     testurl  = "http://banyungong.net/category/101.html"
     #testurl  = "http://gaoqing.la/"
     page=urllib.urlopen(testurl).read()
     ss =  parser.get_parse_data(testurl,page,debug=True)
+    print ss
     import get_title
-    for data in ss[0]['list']:
+    for data in ss['list']:
         print data['link']
         print data['title'].encode("utf-8")
         print get_title.get_title(testurl,data['title'].encode("utf-8"))
+#    import get_title
+#    for data in ss[0]['list']:
+#        print data['link']
+#        print data['title'].encode("utf-8")
+#        print get_title.get_title(testurl,data['title'].encode("utf-8"))

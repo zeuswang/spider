@@ -36,7 +36,7 @@ def get_douban_movie(parse,ename):
     page=urllib.urlopen(lurl).read()
     list = parser.get_parse_data(url,page) 
     try:
-        link = list[0]['list'][0]['link']
+        link = list['list'][0]['link']
         item=douban.get_result(link)
 
         return item
@@ -53,7 +53,7 @@ def banyungong_get_link(parser):
     page=urllib.urlopen(testurl).read()
     ss =  parser.get_parse_data(testurl,page)
     mlist = []
-    for data in ss[0]['list']:
+    for data in ss['list']:
         link =  "http://banyungong.net"+data['link']
         title =  data['title'].encode("utf-8")
         if "1080P电影" != title:
@@ -66,7 +66,7 @@ def gaoqingla_get_link(parser):
     testurl  = "http://gaoqing.la/"
     page=urllib.urlopen(testurl).read()
     ss =  parser.get_parse_data(testurl,page)
-    for data in ss[0]['list']:
+    for data in ss['list']:
         link =  data['link']
         title =  data['title'].encode("utf-8")
         title2 = get_title(link,title)

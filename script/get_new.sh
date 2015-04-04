@@ -4,4 +4,4 @@ cp ../data/movie.$date ../data/movie
 cp ../data/link.$date ../data/link
 
 cd /home/wangwei/moviesite
-python db/update.py 
+python db/update.py |tee ../log/update.$date

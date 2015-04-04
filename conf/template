@@ -37,7 +37,19 @@
                         }
                 }
         }
+},
+{
+        "url": "http://www.imdb.com/title/",
+        "data": {
+                "rate": {
+                        "path": "span[itemprop=ratingValue],text"
+                },
+                "box": {
+                        "path": "div[class=txt-block],text"
+                }
+        }
 }
+
 ]
 
 
