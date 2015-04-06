@@ -99,13 +99,10 @@ if __name__ =="__main__":
     parser = Parser()
     parser.init(sys.argv[1])
     #testurl  = "http://banyungong.net/category/101.html"
-    testurl  = "http://www.imdb.com/title/tt2952602/"
+#    testurl  = "http://www.imdb.com/title/tt2952602/"
     #testurl  = "http://gaoqing.la/"
-    page=urllib.urlopen(testurl).read()
-    ss =  parser.get_parse_data(testurl,page,debug=True)
-    print ss
-    testurl  = "http://banyungong.net/category/101.html"
-    #testurl  = "http://gaoqing.la/"
+    #testurl  = "http://banyungong.net/category/101.html"
+    testurl  = "http://gaoqing.la/"
     page=urllib.urlopen(testurl).read()
     ss =  parser.get_parse_data(testurl,page,debug=True)
     print ss

@@ -26,7 +26,7 @@ def download_pic(url,id,dir):
         traceback.print_exc()  
         print e
 
-def get_douban_movie(parse,ename):
+def get_douban_movie(parse,ename,year):
     #print ename
     #ename ,year = get_title_year(ename)
     #print ename 
@@ -36,10 +36,13 @@ def get_douban_movie(parse,ename):
     page=urllib.urlopen(lurl).read()
     list = parser.get_parse_data(url,page) 
     try:
-        link = list['list'][0]['link']
-        item=douban.get_result(link)
-
-        return item
+        links = list['list']
+        for l in links:
+            flist = l['info'].strip().split('/')
+            date = flist[0][0:4]
+            if date ==year:
+                item=douban.get_result(l['link'])
+                return item
     except Exception,e:
 
         traceback.print_exc()  
@@ -57,9 +60,10 @@ def banyungong_get_link(parser):
         link =  "http://banyungong.net"+data['link']
         title =  data['title'].encode("utf-8")
         if "1080P电影" != title:
-            title2 = get_title(link,title)
-            if title2 !=None:
-                mlist.append([link,title,title2])
+            print link,title
+            title2,year = get_title(link,title)
+            if title2 !=None and year!=None:
+                mlist.append([link,title,title2,year])
     return mlist 
 def gaoqingla_get_link(parser):
     mlist = []
@@ -69,9 +73,9 @@ def gaoqingla_get_link(parser):
     for data in ss['list']:
         link =  data['link']
         title =  data['title'].encode("utf-8")
-        title2 = get_title(link,title)
-        if title2 !=None:
-            mlist.append([link,title,title2])
+        title2,year = get_title(link,title)
+        if title2 !=None and year!=None:
+            mlist.append([link,title,title2,year])
     return mlist
 if __name__ == "__main__":
     try:
@@ -85,11 +89,11 @@ if __name__ == "__main__":
         mlist.extend(banyungong_get_link(parser))
         mlist.extend(gaoqingla_get_link(parser))
         #for m in mlist:
-        #    print m[2],m[0],m[1]
+        #    print m[2],m[3],m[0],m[1]
         #sys.exit()
         for m in mlist:
             print "INFO:",m[2],m[0],m[1]
-            it = get_douban_movie(parse,m[2])
+            it = get_douban_movie(parse,m[2],m[3])
             if it != None: 
                 print "INFO:","get ok",m[2]
                 if it.id not in mmap:

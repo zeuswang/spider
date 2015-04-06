@@ -16,13 +16,16 @@ common_pattern_list = [r'[二两三四五六七八九十一]+部曲',
 def gaoqing_title(name):
     s = name[:]
     for pattern in gaoqing_remove_pattern_list:
-
         p = re.compile(pattern) 
         match = p.search(s)
         if match != None:
             tt =  match.group()
             s = s.replace(tt,'')
-    return s
+    p = re.compile(r'([\d]{4})年')
+    m = p.search(name) 
+    if m !=None:
+        year = m.group()[0:4]
+    return s,year
 def banyungong_title(name):
     s = name[:]
     for pattern in banyungong_remove_pattern_list:
@@ -38,15 +41,17 @@ def banyungong_title(name):
         match = pattern.findall(s)
         if len(match)>0:
             tt =  match[-1]
-            return tt[0:(len(tt) -6)]
+            print ".",tt
+            return tt[0:(len(tt) -6)],tt[len(tt) -5:len(tt)-1]
     else:
-        pattern = re.compile(r'([\w\d\s]+)[0-9]{4}\s') 
+        pattern = re.compile(r'([\w\d\s]+[0-9]{4}\s)') 
         match = pattern.findall(s)
         if len(match)>0:
             tt =  match[-1]
-            return tt
+            print "kong",tt
+            return tt[0:(len(tt) -6)],tt[len(tt) -5:len(tt)-1]
 
-    return s
+    return s,None
 
 
 def get_title(urlname,str_all):
@@ -55,7 +60,7 @@ def get_title(urlname,str_all):
         p = re.compile(pattern) 
         match = p.search(str_all)
         if match != None:
-            return None
+            return None,None
     if "banyungong" in urlname:
         return banyungong_title(str_all)
     elif  "gaoqing" in urlname:
