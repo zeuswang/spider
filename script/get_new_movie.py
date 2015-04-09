@@ -53,20 +53,12 @@ def get_douban_movie(parse,title):
     #ename ,year = get_title_year(ename)
     #print ename 
     #ename = "Le domaine des dieux"
-    lurl="http://movie.douban.com/subject_search?search_text="+title.cname
     url="http://movie.douban.com/subject_search?search_text="
-
     try:
-        page=urllib.urlopen(lurl).read()
-
         links=[]
-    #    print "xxx",lurl
-        list = parser.get_parse_data(url,page) 
-        links.extend(list['list'])
-
-
+        need_search_by_cname = True
         if len(title.ename) > 1:
-
+            need_search_by_cname =False
             time.sleep(1)
             lurl="http://movie.douban.com/subject_search?search_text="+title.ename
             page=urllib.urlopen(lurl).read()
@@ -77,8 +69,21 @@ def get_douban_movie(parse,title):
                 flist  =ltitle.split("/")
                 ltitle = flist[0].strip()
                 return douban.get_result(list['list'][0]['link']),ltitle
-            else:
+            elif len(list['list']) >1 and len(list['list']) <= 12:
                 links.extend(list['list'])
+            else:
+                need_search_by_cname =True
+
+        if need_search_by_cname:       
+            print "search by cname"
+            lurl="http://movie.douban.com/subject_search?search_text="+title.cname
+            url="http://movie.douban.com/subject_search?search_text="
+
+            page=urllib.urlopen(lurl).read()
+
+            #    print "xxx",lurl
+            list = parser.get_parse_data(url,page) 
+            links.extend(list['list'])
         houxuan= []
         for l in links:
             flist = l['info'].strip().split('/')
@@ -91,11 +96,12 @@ def get_douban_movie(parse,title):
 #               ltitle += l['span'].encode("utf-8")
 #               ltitle.replace('\n','')
             if is_num( date):
-                if abs(int(date) - int(title.year)) <=1:
+                if abs(int(date) - int(title.year)) <1:
                     houxuan.append([l,ltitle])
 
         houxuan.sort(key=lambda x:Similarity(x[1],title.cname),reverse=True)
         url = houxuan[0][0]['link']
+        #print "DEBUG",houxuan[0][0]['info']
         item=douban.get_result(url) 
         return item ,houxuan[0][1]
     except Exception,e:
@@ -149,11 +155,12 @@ if __name__ == "__main__":
         #    print m[2],m[3],m[0],m[1]
         #sys.exit()
         #t = Title()
-       # t.cname = "狼图腾"
-       # t.url = "http://gaoqing.la/ledernierloup.html"
-       # t.raw = "2015年 狼图腾 [冯绍峰窦骁主演 耗时5年拍摄完]"
-       # t.year = "2015"
-       # mlist.append(t)
+        #t.cname = "奇迹"
+        #t.url = "http://banyungong.net/magnetm/97605d06b65049f2833feda73afbd3ac.html"
+        #t.ename = "mucize"
+        #t.raw = "奇迹  mucize.2015.1080p.web.dl.h.264.dd5.1.ltrg.turkish.mkv"
+        #t.year = "2015"
+        #mlist.append(t)
         for m in mlist:
             print "INFO:",m.cname,"////",m.ename,"/////",m.year
             it,dtitle = get_douban_movie(parse,m)
