@@ -10,9 +10,10 @@ import io
 import os
 import parse
 import douban
-from  get_title import get_title
+from  get_title import get_title,Title
 import traceback
 import datetime
+import Levenshtein
 def download_pic(url,id,dir):
     try:
         if not os.path.exists(dir):  
@@ -25,31 +26,85 @@ def download_pic(url,id,dir):
     except Exception,e:
         traceback.print_exc()  
         print e
+def is_number(uchar):
+	if uchar >= u'\u0030' and uchar<=u'\u0039':
+		return True
+	else:
+		return False
+def Similarity(s1,s2):
 
-def get_douban_movie(parse,ename,year):
+    return Levenshtein.ratio(s1,s2)
+    flist  =s1.split("/")
+    print "sss",flist[0].strip(),s2,Levenshtein.ratio(flist[0].strip(),s2)
+    return Levenshtein.ratio(flist[0].strip(),s2)
+    rate = 0.0
+    for s in flist:
+        r= Levenshtein.ratio(s,s2)
+        if r> rate:
+            rate = r
+    return rate
+def is_num(year):
+    for c in year:
+        if not is_number(c):
+            return False
+    return True
+def get_douban_movie(parse,title):
     #print ename
     #ename ,year = get_title_year(ename)
     #print ename 
     #ename = "Le domaine des dieux"
-    lurl="http://movie.douban.com/subject_search?search_text="+ename
+    lurl="http://movie.douban.com/subject_search?search_text="+title.cname
     url="http://movie.douban.com/subject_search?search_text="
-    page=urllib.urlopen(lurl).read()
-    list = parser.get_parse_data(url,page) 
+
     try:
-        links = list['list']
+        page=urllib.urlopen(lurl).read()
+
+        links=[]
+    #    print "xxx",lurl
+        list = parser.get_parse_data(url,page) 
+        links.extend(list['list'])
+
+
+        if len(title.ename) > 1:
+
+            time.sleep(1)
+            lurl="http://movie.douban.com/subject_search?search_text="+title.ename
+            page=urllib.urlopen(lurl).read()
+     #       print "xxx",lurl
+            list = parser.get_parse_data(url,page) 
+            if len(list['list']) ==1:
+                ltitle  = list['list'][0]['title'].encode("utf-8")
+                flist  =ltitle.split("/")
+                ltitle = flist[0].strip()
+                return douban.get_result(list['list'][0]['link']),ltitle
+            else:
+                links.extend(list['list'])
+        houxuan= []
         for l in links:
             flist = l['info'].strip().split('/')
             date = flist[0][0:4]
-            if date ==year:
-                item=douban.get_result(l['link'])
-                return item
+            #print "info",l['title'],"//",l['span']
+            ltitle  = l['title'].encode("utf-8")
+            flist  =ltitle.split("/")
+            ltitle = flist[0].strip()
+#            if l['span']!=None:
+#               ltitle += l['span'].encode("utf-8")
+#               ltitle.replace('\n','')
+            if is_num( date):
+                if abs(int(date) - int(title.year)) <=1:
+                    houxuan.append([l,ltitle])
+
+        houxuan.sort(key=lambda x:Similarity(x[1],title.cname),reverse=True)
+        url = houxuan[0][0]['link']
+        item=douban.get_result(url) 
+        return item ,houxuan[0][1]
     except Exception,e:
 
         traceback.print_exc()  
         print "ERROR:get douban movie error",e
-        print "ERROR:ename =",ename
+        print "ERROR:ename =",title.ename
         print "ERROR:list = ",list
-    return None
+    return None,None
 #print get_douban_movie("Interstellar")
 def banyungong_get_link(parser):
     testurl  = "http://banyungong.net/category/101.html"
@@ -60,22 +115,24 @@ def banyungong_get_link(parser):
         link =  "http://banyungong.net"+data['link']
         title =  data['title'].encode("utf-8")
         if "1080P电影" != title:
-            print link,title
-            title2,year = get_title(link,title)
-            if title2 !=None and year!=None:
-                mlist.append([link,title,title2,year])
+     #       print link,title
+            t  = get_title(link,title)
+            if t !=None:
+                mlist.append(t)
+        
     return mlist 
 def gaoqingla_get_link(parser):
     mlist = []
     testurl  = "http://gaoqing.la/"
     page=urllib.urlopen(testurl).read()
     ss =  parser.get_parse_data(testurl,page)
-    for data in ss['list']:
+    for data in ss['list'][0:15]:
         link =  data['link']
         title =  data['title'].encode("utf-8")
-        title2,year = get_title(link,title)
-        if title2 !=None and year!=None:
-            mlist.append([link,title,title2,year])
+        t = get_title(link,title)
+        if t !=None:
+            mlist.append(t)
+
     return mlist
 if __name__ == "__main__":
     try:
@@ -91,16 +148,23 @@ if __name__ == "__main__":
         #for m in mlist:
         #    print m[2],m[3],m[0],m[1]
         #sys.exit()
+        #t = Title()
+       # t.cname = "狼图腾"
+       # t.url = "http://gaoqing.la/ledernierloup.html"
+       # t.raw = "2015年 狼图腾 [冯绍峰窦骁主演 耗时5年拍摄完]"
+       # t.year = "2015"
+       # mlist.append(t)
         for m in mlist:
-            print "INFO:",m[2],m[0],m[1]
-            it = get_douban_movie(parse,m[2],m[3])
+            print "INFO:",m.cname,"////",m.ename,"/////",m.year
+            it,dtitle = get_douban_movie(parse,m)
             if it != None: 
-                print "INFO:","get ok",m[2]
+                print "INFO:",m.raw
+                print "INFO:",dtitle
                 if it.id not in mmap:
                     mmap[it.id] = it
     
                 item = mmap[it.id]
-                item.download_link.append([m[0],m[1]])
+                item.download_link.append([m.url,m.raw])
                 time.sleep(1)
                 download_pic(item.pic_url,item.id,pic_dir)
                 time.sleep(1)

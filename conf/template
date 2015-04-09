@@ -37,7 +37,14 @@
                         },
                         "info":{
                             "path":"p[class=pl],text"
+                        },
+                        "title":{
+                            "path":"a,text"
+                        },
+                        "span":{
+                            "path":"a,span,text"
                         }
+
                 }
         }
 },

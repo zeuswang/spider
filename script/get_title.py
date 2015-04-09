@@ -10,9 +10,21 @@ gaoqing_remove_pattern_list = [r'\[.*\]+.*',
 
 banyungong_remove_pattern_list = [r'\[[^\[\]]+\]{1}',
                                 r'.*[\d]{4}年' ]
+banyungong_pattern_list = [r'([a-zA-Z0-9\.]+[0-9]{4}\.)',
+                           r'([\w\d\s]+[0-9]{4}\s)',
+                            r'([\w\d\s]+\([0-9]{4}\))']
+
 common_pattern_list = [r'[二两三四五六七八九十一]+部曲',
                         r'全集',
                         r'合集']
+class Title:
+    def __init__(self):
+        self.raw =""
+        self.url =""
+        self.cname = ""
+        self.ename = ""    
+        self.year = ""
+
 def gaoqing_title(name):
     s = name[:]
     for pattern in gaoqing_remove_pattern_list:
@@ -23,9 +35,13 @@ def gaoqing_title(name):
             s = s.replace(tt,'')
     p = re.compile(r'([\d]{4})年')
     m = p.search(name) 
+    year = ""
     if m !=None:
         year = m.group()[0:4]
-    return s,year
+    t = Title()
+    t.cname = s
+    t.year = year
+    return t
 def banyungong_title(name):
     s = name[:]
     for pattern in banyungong_remove_pattern_list:
@@ -36,22 +52,30 @@ def banyungong_title(name):
     #        print t
             s = s.replace(t,'')
     #        print s
-    if "." in s:
-        pattern = re.compile(r'([a-zA-Z0-9\.]+[0-9]{4}\.)') 
-        match = pattern.findall(s)
-        if len(match)>0:
-            tt =  match[-1]
-            print ".",tt
-            return tt[0:(len(tt) -6)],tt[len(tt) -5:len(tt)-1]
-    else:
-        pattern = re.compile(r'([\w\d\s]+[0-9]{4}\s)') 
-        match = pattern.findall(s)
-        if len(match)>0:
-            tt =  match[-1]
-            print "kong",tt
-            return tt[0:(len(tt) -6)],tt[len(tt) -5:len(tt)-1]
+    ename = ""
+    year = ""
+    cname  = ""
+    for r in banyungong_pattern_list:
+        p = re.compile(r)
+        m = p.findall(s)
+        if len(m) >0:
+            tt =  m[-1]
+            pos = s.find(tt)
+            cname = s[0:pos]
+            ename =  tt[0:(len(tt) -6)]
+            year = tt[len(tt) -5:len(tt)-1]
+            break
+        
 
-    return s,None
+    t = Title()
+    t.cname = cname
+    t.ename = ename
+    t.year = year
+
+    if ename ==  "" and cname  == "":
+        return None
+    else:
+        return t
 
 
 def get_title(urlname,str_all):
@@ -60,12 +84,18 @@ def get_title(urlname,str_all):
         p = re.compile(pattern) 
         match = p.search(str_all)
         if match != None:
-            return None,None
+            return None
+    t = None
     if "banyungong" in urlname:
-        return banyungong_title(str_all)
+        t =  banyungong_title(str_all)
     elif  "gaoqing" in urlname:
-        return gaoqing_title(str_all)
+        t = gaoqing_title(str_all)
+    if t !=None:
+        t.url = urlname
+        t.raw = str_all
+        return t
 
+    return None
 if __name__=="__main__":
     print get_title("http://gaoqing.la/","2014年 超能陆战队 大英雄联盟 大英雄天团 [漫威同名漫画改编 冰雪奇缘原班人马制作] 03-01 1080P超清 , 3D高清 , 720P高清 , Bluray蓝光原盘")
     print get_title("http://banyungong/","lang超能陆战队 abc dddd ssss 2015 1080p")
