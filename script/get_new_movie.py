@@ -65,7 +65,7 @@ def get_douban_movie(parse,title):
      #       print "xxx",lurl
             list = parser.get_parse_data(url,page) 
             if len(list['list']) ==1:
-                ltitle  = list['list'][0]['title'].encode("utf-8")
+                ltitle  = list['list'][0]['title']
                 flist  =ltitle.split("/")
                 ltitle = flist[0].strip()
                 return douban.get_result(list['list'][0]['link']),ltitle
@@ -89,14 +89,13 @@ def get_douban_movie(parse,title):
             flist = l['info'].strip().split('/')
             date = flist[0][0:4]
             #print "info",l['title'],"//",l['span']
-            ltitle  = l['title'].encode("utf-8")
+            ltitle  = l['title']
             flist  =ltitle.split("/")
             ltitle = flist[0].strip()
 #            if l['span']!=None:
 #               ltitle += l['span'].encode("utf-8")
 #               ltitle.replace('\n','')
-            if is_num( date):
-                if abs(int(date) - int(title.year)) <1:
+            if  date == title.year:
                     houxuan.append([l,ltitle])
 
         houxuan.sort(key=lambda x:Similarity(x[1],title.cname),reverse=True)
@@ -109,7 +108,7 @@ def get_douban_movie(parse,title):
         traceback.print_exc()  
         print "ERROR:get douban movie error",e
         print "ERROR:ename =",title.ename
-        print "ERROR:list = ",list
+        print "ERROR:raw = ",title.raw
     return None,None
 #print get_douban_movie("Interstellar")
 def banyungong_get_link(parser):
@@ -119,7 +118,8 @@ def banyungong_get_link(parser):
     mlist = []
     for data in ss['list']:
         link =  "http://banyungong.net"+data['link']
-        title =  data['title'].encode("utf-8")
+        title =  data['title']
+        #title =  data['title'].encode("utf-8")
         if "1080P电影" != title:
      #       print link,title
             t  = get_title(link,title)
@@ -134,7 +134,8 @@ def gaoqingla_get_link(parser):
     ss =  parser.get_parse_data(testurl,page)
     for data in ss['list'][0:15]:
         link =  data['link']
-        title =  data['title'].encode("utf-8")
+        #title =  data['title'].encode("utf-8")
+        title =  data['title']
         t = get_title(link,title)
         if t !=None:
             mlist.append(t)
@@ -155,11 +156,11 @@ if __name__ == "__main__":
         #    print m[2],m[3],m[0],m[1]
         #sys.exit()
         #t = Title()
-        #t.cname = "奇迹"
+        #t.cname = "影子写手"
         #t.url = "http://banyungong.net/magnetm/97605d06b65049f2833feda73afbd3ac.html"
-        #t.ename = "mucize"
-        #t.raw = "奇迹  mucize.2015.1080p.web.dl.h.264.dd5.1.ltrg.turkish.mkv"
-        #t.year = "2015"
+        #t.ename = "The Ghost Writer"
+        #t.raw = "影子写手 The Ghost Writer (2010)"
+        #t.year = "2010"
         #mlist.append(t)
         for m in mlist:
             print "INFO:",m.cname,"////",m.ename,"/////",m.year

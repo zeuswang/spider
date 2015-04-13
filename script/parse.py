@@ -37,7 +37,10 @@ class Parser:
                 value= node.attr(attr) 
                 return value
             elif 'text' == p:
-                value = node.text()
+                if node.text() != None:
+                    value = node.text().encode("utf-8")
+                else:
+                    value ="NULL"
                 return value
             elif '#' in p:
                 pl = p.split('#')    
