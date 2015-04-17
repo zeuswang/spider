@@ -17,6 +17,15 @@ banyungong_pattern_list = [r'([a-zA-Z0-9\.]+[0-9]{4}\.)',
 common_pattern_list = [r'[二两三四五六七八九十一]+部曲',
                         r'全集',
                         r'合集']
+class DetailInfo:
+    def __init__(self):
+        self.actors= {}
+        self.directors = {}
+        self.year = ""
+        self.imdb_link =""
+        self.imdb_rate = -1
+        self.imdb_box = -1
+
 class Title:
     def __init__(self):
         self.raw =""
@@ -24,8 +33,14 @@ class Title:
         self.cname = ""
         self.ename = ""    
         self.year = ""
+        self.detail_info = DetailInfo()
 
-def gaoqing_title(name):
+def gaoqing_title(url,name):
+
+    #    http://gaoqing.la/the-admiral-roaring-currents.html
+    url = url.replace("http://gaoqing.la/",'')
+    url = url.replace(".html",'')
+    url = url.replace("-",' ')
     s = name[:]
     for pattern in gaoqing_remove_pattern_list:
         p = re.compile(pattern) 
@@ -40,6 +55,7 @@ def gaoqing_title(name):
         year = m.group()[0:4]
     t = Title()
     t.cname = s
+    t.ename = url
     t.year = year
     return t
 def banyungong_title(name):
@@ -89,7 +105,7 @@ def get_title(urlname,str_all):
     if "banyungong" in urlname:
         t =  banyungong_title(str_all)
     elif  "gaoqing" in urlname:
-        t = gaoqing_title(str_all)
+        t = gaoqing_title(urlname,str_all)
     if t !=None:
         t.url = urlname
         t.raw = str_all

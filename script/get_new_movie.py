@@ -1,6 +1,7 @@
 # coding=utf8
 import time
 import urllib 
+import socket
 import urllib2
 import StringIO
 from pyquery import PyQuery as pyq  
@@ -48,7 +49,89 @@ def is_num(year):
         if not is_number(c):
             return False
     return True
-def get_douban_movie(parse,title):
+def get_imdb_movies(parser,mlist):
+    res = []
+
+    timeout = 15
+
+    socket.setdefaulttimeout(timeout)
+    for m in mlist:
+    
+        try:
+            url="http://www.imdb.com/find?q="
+            if len(m.ename)>0:
+                lurl="http://www.imdb.com/find?q="+m.ename
+                ok = False
+                page = ""
+                for i in range(0,3):
+                    try:
+                        print lurl
+                        print m.ename
+                        f=urllib.urlopen(lurl)
+                        page = f.read()
+                        ok =True
+                        break
+                    except Exception,e:
+                        print e
+                        continue
+         #       print "xxx",lurl
+                if ok ==False:
+                    continue
+                dlist = parser.get_parse_data(url,page) 
+                print lurl
+                for d in dlist['list']:
+                    if 'title' in d['link']:
+                        res.append("http://www.imdb.com/"+ d['link'])
+                    print d['link']
+            time.sleep(1)
+
+        except Exception,e:
+
+            traceback.print_exc()  
+            print "ERROR:",e
+            print "ERROR:get imdb search error",m.raw
+            print "ERROR:get imdb ",m.ename,"//",m.cname
+            continue
+    return res
+
+
+def get_douban_movies(parser,mlist):
+    #print ename
+    #ename ,year = get_title_year(ename)
+    #print ename 
+    #ename = "Le domaine des dieux"
+    res = []
+    for m in mlist:
+    
+        try:
+            url="http://movie.douban.com/subject_search?search_text="
+            if len(m.ename)>0:
+                lurl="http://movie.douban.com/subject_search?search_text="+m.ename
+                page=urllib.urlopen(lurl).read()
+         #       print "xxx",lurl
+                dlist = parser.get_parse_data(url,page) 
+                for d in dlist['list']:
+                    res.append(d['link'])
+            time.sleep(1)
+            lurl="http://movie.douban.com/subject_search?search_text="+m.cname
+            page=urllib.urlopen(lurl).read()
+         #       print "xxx",lurl
+            dlist = parser.get_parse_data(url,page) 
+            for d in dlist['list']:
+                res.append(d['link'])
+            time.sleep(1)
+
+
+        except Exception,e:
+
+            traceback.print_exc()  
+            print "ERROR:",e
+            print "ERROR:get douban search error",m.raw
+            print "ERROR:get douban ",m.ename,"//",m.cname
+            continue
+    return res
+
+def get_douban_movie(parser,title):
     #print ename
     #ename ,year = get_title_year(ename)
     #print ename 
@@ -125,6 +208,8 @@ def banyungong_get_link(parser):
             t  = get_title(link,title)
             if t !=None:
                 mlist.append(t)
+                if len(mlist)>15:
+                    break
         
     return mlist 
 def gaoqingla_get_link(parser):
@@ -144,9 +229,9 @@ def gaoqingla_get_link(parser):
 if __name__ == "__main__":
     try:
         mmap = {}
-        output_movie = sys.argv[2]
-        output_link = sys.argv[3]
-        pic_dir = sys.argv[4]
+        output_url = sys.argv[2]
+ #       output_link = sys.argv[3]
+ #       pic_dir = sys.argv[4]
         parser = parse.Parser()
         parser.init(sys.argv[1])
         mlist = []
@@ -162,37 +247,49 @@ if __name__ == "__main__":
         #t.raw = "影子写手 The Ghost Writer (2010)"
         #t.year = "2010"
         #mlist.append(t)
-        for m in mlist:
-            print "INFO:",m.cname,"////",m.ename,"/////",m.year
-            it,dtitle = get_douban_movie(parse,m)
-            if it != None: 
-                print "INFO:",m.raw
-                print "INFO:",dtitle
-                if it.id not in mmap:
-                    mmap[it.id] = it
-    
-                item = mmap[it.id]
-                item.download_link.append([m.url,m.raw])
-                time.sleep(1)
-                download_pic(item.pic_url,item.id,pic_dir)
-                time.sleep(1)
-            time.sleep(1)
-    #    print mmap
-        fp = open(output_movie,'w')
-        for k,it in mmap.items():
-            str = '%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\n' % (it.id,it.cname,it.ename,it.actors,it.director,it.writer,it.location,it.type,it.date,it.runtime,it.rate,it.votes,it.pic_url,it.aname,it.imdb_link,it.comment_link,it.summary)
-            fp.write(str)
+        urllist =[ [m.url,m.raw] for m in mlist]
+        imdblist = get_imdb_movies(parser,mlist)
+        doubanurllist = get_douban_movies(parser,mlist)
+        urllist.extend([[d,''] for d in doubanurllist])
+        urllist.extend([[d,''] for d in imdblist])
+
+        fp = open(output_url,'w')
+        for url in urllist:
+            fp.write(url[0]+'\t'+url[1]+'\n')
+        fp.flush()
         fp.close()
-        time = datetime.datetime.now()
-        datestr = time.strftime('%Y-%m-%d')
-        fp = open(output_link,'w')
-        for k,v in mmap.items():
-    #        print k
-            
-            for dl in v.download_link:
-                str = '%s\3%s\3%s\3%s\n' % (k,dl[0],dl[1],datestr)
-                fp.write(str)
-        fp.close()
+#        
+#        for m in mlist:
+#            print "INFO:",m.cname,"////",m.ename,"/////",m.year
+#            it,dtitle = get_douban_movie(parser,m)
+#            if it != None: 
+#                print "INFO:",m.raw
+#                print "INFO:",dtitle
+#                if it.id not in mmap:
+#                    mmap[it.id] = it
+#    
+#                item = mmap[it.id]
+#                item.download_link.append([m.url,m.raw])
+#                time.sleep(1)
+#                download_pic(item.pic_url,item.id,pic_dir)
+#                time.sleep(1)
+#            time.sleep(1)
+#    #    print mmap
+#        fp = open(output_movie,'w')
+#        for k,it in mmap.items():
+#            str = '%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\3%s\n' % (it.id,it.cname,it.ename,it.actors,it.director,it.writer,it.location,it.type,it.date,it.runtime,it.rate,it.votes,it.pic_url,it.aname,it.imdb_link,it.comment_link,it.summary)
+#            fp.write(str)
+#        fp.close()
+#        time = datetime.datetime.now()
+#        datestr = time.strftime('%Y-%m-%d')
+#        fp = open(output_link,'w')
+#        for k,v in mmap.items():
+#    #        print k
+#            
+#            for dl in v.download_link:
+#                str = '%s\3%s\3%s\3%s\n' % (k,dl[0],dl[1],datestr)
+#                fp.write(str)
+#        fp.close()
     except Exception,e:
         print traceback.print_exc()
         print e

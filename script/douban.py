@@ -11,28 +11,9 @@ class PageParser:
         print "Please define detail_parse!"
 result_list_num = 10
 class Item:
-#    id = ""
-#    pic_url=""
-#    cname=""
-#    ename=""
-#    aname=""
-#    actors=""
-#    actor_link=""
-#    director=""
-#    writer=""
-#    location=""
-#    type=""
-#    date= ""
-#    runtime=""
-#    imdb_link=""
-#    comment_link=""
-#    summary=""
-#    rate=0
-#    votes=0
-#    error=0
-#    download_link = []
     def __init__(self):
         self.id = ""
+        self.url =""
         self.pic_url=""
         self.cname=""
         self.ename=""
@@ -46,6 +27,7 @@ class Item:
         self.runtime=""
         self.rate=0
         self.votes=0
+        self.box=0
         self.error=0
         self.imdb_link=""
         self.comment_link=""
@@ -185,10 +167,22 @@ def get_tag(url):
 def get_result(target_url):
     parser = get_parser(target_url)
     target_url= target_url.strip()
-    res=urllib.urlopen(target_url).read()
-        #parse_page(res)
+    ok = False
+    page = ""
+    for i in range(0,3):
+        try:
+            time.sleep(1)
+            f=urllib.urlopen(target_url)
+            page = f.read()
+            ok =True
+            break
+        except Exception,e:
+            print e
+            continue
+    if ok==False:
+        return None
     it = Item()
-    parser.detail_parse(res,it)
+    parser.detail_parse(page,it)
     flist = target_url.split('/')
     it.id = flist[-2]
     #print it.id

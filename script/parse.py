@@ -8,6 +8,8 @@ import sys
 import io
 import os
 import urllib
+from  get_title import Title,DetailInfo
+import re
 class Parser:
     def __init__(self):
         self._template_map = {}
@@ -93,11 +95,34 @@ class Parser:
 
     def get_parse_data(self,url,page,debug=False):
         for k,v in self._template_map.items():
-            if k in url or k ==url:
+            p = re.compile(k) 
+            match = p.search(url)
+            if match != None:
+                tt =  match.group()
+                print tt
+                print url
                 template = v
                 return self._get_data(page,template,debug)
         return []
-            
+def banyungong_parse_detail(t,res):
+    
+    return 
+def gaoqing_parse_detail(t,res):
+
+    return 
+def parse_detail(parser,t):
+
+    page=urllib.urlopen(t.url).read()
+
+    res =  parser.get_parse_data(t.url,page)
+    time.sleep(1)
+    print res['content']
+    if "banyungong" in t.url:
+        banyungong_parse_detail(t,res)
+    elif "gaoqing.la" in t.url:
+        gaoqing_parse_detail(t,res)
+
+    return 
 if __name__ =="__main__":
     parser = Parser()
     parser.init(sys.argv[1])
